@@ -31,14 +31,14 @@ class Table2(FormatColumns):
 #views/player.py
 
 from sanic import Blueprint
-from public_view import ObjList,ObjView
+from public_view import PublicList,ObjView
 from table_field import Player
 
 player_bp = Blueprint('player', url_prefix = "/player")
 
 
 
-class PlayerList(ObjList):
+class PlayerList(PublicList):
     #max_page_size = 50
     table = Player()
     serach_field = ("PlayerID", "Name_J", "Name_E",)
@@ -66,5 +66,33 @@ POST：在服务器新建一个资源。
 PUT：在服务器更新资源（客户端提供改变后的完整资源）。
 DELETE：从服务器删除资源。
 
+```
+
+
+
+```python
+#需要为sanicdb.py添加一个方法
+
+    async def data_and_count(self, query, *parameters, **kwparameters):
+        """获取查询的数据列表 和 数据表的总数量"""
+        if not self.pool:
+            await self.init_pool()
+        async with self.pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                try:
+                    await cur.execute(query, kwparameters or parameters)
+                    ret1 = await cur.fetchall()
+                except pymysql.err.InternalError:
+                    await conn.ping()
+                    await cur.execute(query, kwparameters or parameters)
+                    ret1 = await cur.fetchall()
+                try:
+                    await cur.execute("select found_rows() as count;")
+                    ret2 = await cur.fetchone()
+                except pymysql.err.InternalError:
+                    await conn.ping()
+                    await cur.execute("select found_rows() as count;")
+                    ret2 = await cur.fetchone()
+                return ret1,ret2.get("count")
 ```
 
