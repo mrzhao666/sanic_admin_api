@@ -7,7 +7,7 @@ from config import MYSQL_CONFIG
 from views.table import table_bp
 from views.tables import tables_bp
 
-from sanic.exceptions import MethodNotSupported
+from error_response import ParamsNotFound
 
 app = Sanic(__name__, strict_slashes = False)
 app.blueprint(table_bp)
@@ -30,12 +30,12 @@ async def close_db(app, loop):
 
 
 
-@app.exception(MethodNotSupported)
-async def handleMethodNot(request, exception):
+@app.exception(ParamsNotFound)
+async def paramsNotFound(request, exception):
     return JsonResponse({
         "code":0,
         "msg":str(exception)
-    }, status = 405)
+    }, status = 400)
 
 
 

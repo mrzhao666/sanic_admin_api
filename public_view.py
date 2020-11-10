@@ -9,7 +9,7 @@ from utils.public_utils import JsonExtendEncoder
 
 from table_field import Table
 
-
+from error_response import ParamsNotFound
 
 class ObjList(HTTPMethodView, DataPage):
     table = Table()
@@ -52,6 +52,8 @@ class ObjList(HTTPMethodView, DataPage):
         })
 
     async def post(self, request):
+        if not request.form:
+            raise ParamsNotFound("param not found")
         await request.app.db.table_insert(self.table.table_name, item=request.form)
         return JsonResponse({"code": 1,
                              "msg": "添加完成",
@@ -67,6 +69,8 @@ class ObjView(HTTPMethodView):
         return JsonResponse(json.loads(result))
 
     async def put(self, request, obj_id):
+        if not request.form:
+            raise ParamsNotFound("param not found")
         await request.app.db.table_update(self.table.table_name, updates=request.form, field_where=self.table.primary_key,
                               value_where=obj_id)
         return JsonResponse({"code": 1,
