@@ -31,14 +31,14 @@ class Table2(FormatColumns):
 #views/player.py
 
 from sanic import Blueprint
-from public_view import PublicList,ObjView
+from public_view import ObjList,ObjView
 from table_field import Player
 
 player_bp = Blueprint('player', url_prefix = "/player")
 
 
 
-class PlayerList(PublicList):
+class PlayerList(ObjList):
     #max_page_size = 50
     table = Player()
     serach_field = ("PlayerID", "Name_J", "Name_E",)
