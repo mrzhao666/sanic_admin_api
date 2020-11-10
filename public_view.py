@@ -11,7 +11,7 @@ from table_field import Table
 
 
 
-class PublicList(HTTPMethodView, DataPage):
+class ObjList(HTTPMethodView, DataPage):
     table = Table()
     serach_field = ()
     max_page_size = 100
