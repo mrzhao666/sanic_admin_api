@@ -1,11 +1,11 @@
 from sanic import Blueprint
 
-from public_view import PublicList,ObjView
+from public_view import ObjList,ObjView
 from table_field import Table
 table_bp = Blueprint('table', url_prefix = "/table")
 
 
-class TableList(PublicList):
+class TableList(ObjList):
     table = Table()
     serach_field = ("ID", "Name_J",)
 
