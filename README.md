@@ -1,3 +1,4 @@
+```python
 #table_field.py
 class Player(FormatColumns):
     table_name = "player"
@@ -21,8 +22,11 @@ class Table2(FormatColumns):
 
 
 
+```
 
 
+
+```python
 #create views player
 #views/player.py
 
@@ -35,6 +39,7 @@ player_bp = Blueprint('player', url_prefix = "/player")
 
 
 class PlayerList(PublicList):
+    #max_page_size = 50
     table = Player()
     serach_field = ("PlayerID", "Name_J", "Name_E",)
 
@@ -45,3 +50,21 @@ class PlyerObj(ObjView):
 
 player_bp.add_route(PlayerList.as_view(), "")
 player_bp.add_route(PlyerObj.as_view(), "/<obj_id>")
+```
+
+
+
+```
+
+http://127.0.0.1/player?keyword=Nicholas&page=10&page_size=100
+
+
+http://127.0.0.1/player/888
+
+GET：从服务器取出资源（一项或多项）。
+POST：在服务器新建一个资源。
+PUT：在服务器更新资源（客户端提供改变后的完整资源）。
+DELETE：从服务器删除资源。
+
+```
+
