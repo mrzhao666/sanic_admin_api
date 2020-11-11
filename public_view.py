@@ -46,6 +46,7 @@ class ObjList(HTTPMethodView, DataPage):
             int_count += 1
 
         return JsonResponse({
+            "data_count": count,
             "max_page": int_count,
             "page": self.page,
             "data" : json.loads(data),
