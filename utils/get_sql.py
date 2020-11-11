@@ -7,6 +7,11 @@ def querySql(table_name, query_field = "*", where_field = None, operator_list = 
     :param operator_list:    where条件  OR\AND
     :return: 查询结果
     """
+
+
+    # if isinstance(query_field, (list, tuple,)):
+    #     query_field = map(lambda x:table_name + "." + x, query_field)
+    #     print("进来了:",query_field)
     query_field = ",".join(query_field)
     sql = "SELECT {}{} FROM {}".format(count, query_field, table_name)
 
@@ -16,7 +21,7 @@ def querySql(table_name, query_field = "*", where_field = None, operator_list = 
         if operator_list in ("OR", "AND", "or", "and"):
             operator_list = [operator_list] * (len(where_field) - 1)
         for index,value in enumerate(where_field):
-            where_sql += (value + where_func + "%s")
+            where_sql += (table_name + "." + value + where_func + "%s")
             if len(where_field) - 1 == index:
                 pass
             else:
@@ -40,5 +45,7 @@ def updateSql(table_name, query_field, where_field):
 
 
 if __name__ == '__main__':
-    sql = querySql("table", query_field=["field1", "field2", "field3"],where_field=("field1", "field2",), operator_list="OR", limit=" LIMIT 1,10", where_func = "=", count = "")
+    sql = querySql("table", query_field = ["field1", "field2", "field3"],where_field=("field1", "field2",), operator_list="OR", limit=" LIMIT 1,10", where_func = "=", count = "")
+    sql2 = updateSql("table", query_field = ["field1", "field2", "field3"], where_field = ["field2"])
     print(sql)
+    print(sql2)
