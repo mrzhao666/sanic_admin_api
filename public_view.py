@@ -64,7 +64,7 @@ class ObjList(HTTPMethodView, DataPage):
 class ObjView(HTTPMethodView):
     table = Table()
     async def get(self, request, obj_id):
-        sql = querySql(self.table.table_name, query_field = self.table.query_field,where_field = [self.table.primary_key], where_func = "=")
+        sql = querySql(self.table.table_name, query_field = self.table.query_field,where_field = [self.table.primary_key], where_func = "=", count = "", join_sql = self.table.join_sql)
         result = await request.app.db.get(sql, obj_id)
         result = json.dumps(result, cls=JsonExtendEncoder)
         return JsonResponse(json.loads(result))
