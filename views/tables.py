@@ -12,7 +12,7 @@ async def tableList(request):
     class_dic = get_classes(table_field)
     return_list = []
     for key, value in class_dic.items():
-        return_list.append({value.verbose_name: key})
+        return_list.append({"table_name_j":value.verbose_name, "table_name_e":key})
     return JsonResponse(return_list)
 
 
@@ -25,6 +25,7 @@ async def objTable(request, func):
     except TypeError:
         raise NotFound("Requested URL {} not found".format("/table/func"))
     return JsonResponse({
+        "primary_key": table_obj.primary_key,
         "table_name":table_obj.verbose_name,
         "columns":table_obj.getList
     })
