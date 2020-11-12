@@ -1,4 +1,3 @@
-
 def querySql(table_name, query_field = "*", where_field = None, operator_list = "OR", where_func = " LIKE ", limit = "", order_by = "", count = "SQL_CALC_FOUND_ROWS ", join_sql = ""):
     """
     :param table:
@@ -7,11 +6,6 @@ def querySql(table_name, query_field = "*", where_field = None, operator_list = 
     :param operator_list:    where条件  OR\AND
     :return: 查询结果
     """
-
-
-    # if isinstance(query_field, (list, tuple,)):
-    #     query_field = map(lambda x:table_name + "." + x, query_field)
-    #     print("进来了:",query_field)
     query_field = ",".join(query_field)
     sql = "SELECT {}{} FROM {}".format(count, query_field, table_name)
 
@@ -42,6 +36,13 @@ def updateSql(table_name, query_field, where_field):
             else:
                 where_sql += " {} ".format("AND")
     return sql + where_sql
+
+
+def inset_sql(table_name, query_field):
+    query_field = list(map(lambda x:"`{}`".format(x), query_field))
+
+    sql = "INSERT INTO {} ({}) VALUES ({});".format(table_name, ",".join(query_field), ",".join(["%s"] * len(query_field)))
+    return sql
 
 
 if __name__ == '__main__':

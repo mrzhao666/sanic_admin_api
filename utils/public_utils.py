@@ -19,3 +19,20 @@ class JsonExtendEncoder(json.JSONEncoder):
             return o.strftime('%Y-%m-%d')
         else:
             return json.JSONEncoder.default(self, o)
+
+
+def titleLower(xstr):
+    return xstr[0].lower() + xstr[1:]
+
+
+import inspect
+
+# 找出模块里所有的类名
+def get_classes(arg):
+    class_dic = dict()
+    clsmembers = inspect.getmembers(arg, inspect.isclass)
+    for (name, _) in clsmembers:
+        if name in ("ForeignKey", "FormatColumns"):
+            continue
+        class_dic.setdefault(titleLower(name), _)
+    return class_dic

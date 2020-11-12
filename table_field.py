@@ -2,8 +2,6 @@ from utils.table_utils import FormatColumns, ForeignKey
 
 
 
-
-
 class Table(FormatColumns):
     table_name = "table"
     verbose_name = "web端表名（table）"

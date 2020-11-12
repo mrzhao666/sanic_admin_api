@@ -3,13 +3,12 @@ import json
 from sanic.response import json as JsonResponse
 from sanic.views import HTTPMethodView
 
-from utils.get_sql import querySql
+from utils.get_sql import querySql,inset_sql
 from utils.data_page import DataPage
 from utils.public_utils import JsonExtendEncoder
-
 from table_field import Table
-
 from error_response import ParamsNotFound
+
 
 class ObjList(HTTPMethodView, DataPage):
     table = Table()
@@ -46,7 +45,7 @@ class ObjList(HTTPMethodView, DataPage):
             int_count += 1
 
         return JsonResponse({
-            "data_count": count,
+            "data_count":count,
             "max_page": int_count,
             "page": self.page,
             "data" : json.loads(data),
@@ -55,7 +54,9 @@ class ObjList(HTTPMethodView, DataPage):
     async def post(self, request):
         if not request.form:
             raise ParamsNotFound("param not found")
-        await request.app.db.table_insert(self.table.table_name, item=request.form)
+        form_data = request.form
+        sql = inset_sql(self.table.table_name, query_field = form_data.keys())
+        await request.app.db.execute(sql, *list(form_data.values()))
         return JsonResponse({"code": 1,
                              "msg": "添加完成",
                              })
@@ -70,6 +71,7 @@ class ObjView(HTTPMethodView):
         return JsonResponse(json.loads(result))
 
     async def put(self, request, obj_id):
+
         if not request.form:
             raise ParamsNotFound("param not found")
         await request.app.db.table_update(self.table.table_name, updates=request.form, field_where=self.table.primary_key,
@@ -84,6 +86,5 @@ class ObjView(HTTPMethodView):
         return JsonResponse({"code": 1,
             "msg": "成功删除",
         })
-
 
 

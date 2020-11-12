@@ -4,14 +4,14 @@ from sanicdb import SanicDB
 from sanic_cors import CORS
 
 from config import MYSQL_CONFIG
-from views.table import table_bp
-from views.tables import tables_bp
+from views.table1 import table1_bp
+from views.tables import table_bp
 
 from error_response import ParamsNotFound
 
 app = Sanic(__name__, strict_slashes = False)
+app.blueprint(table1_bp)
 app.blueprint(table_bp)
-app.blueprint(tables_bp)
 
 CORS(app)
 
@@ -44,13 +44,6 @@ async def verificationLogin(request):
     print("request Interceptor")
 
 
-
-@app.route("/", methods = ["GET"])
-async def index(request):
-    return JsonResponse({
-        "table资料" : "table",
-        "table2资料": "table2",
-    })
 
 
 if __name__ == '__main__':
