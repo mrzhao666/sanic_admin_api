@@ -1,17 +1,16 @@
 import json
-
+import pymysql
 from sanic.response import json as JsonResponse
 from sanic.views import HTTPMethodView
 
-from utils.get_sql import querySql,inset_sql
-from utils.data_page import DataPage
-from utils.public_utils import JsonExtendEncoder
-from table_field import Table
-from error_response import ParamsNotFound
+from .utils.get_sql import querySql,inset_sql
+from .utils.data_page import DataPage
+from .utils.public_utils import JsonExtendEncoder
+from .error_response import ParamsNotFound
 
 
 class ObjList(HTTPMethodView, DataPage):
-    table = Table()
+    table = object
     serach_field = ()
     max_page_size = 100
     page_size = 50
@@ -37,7 +36,36 @@ class ObjList(HTTPMethodView, DataPage):
         self.set_page(request)
         keyword = self.get_keyword(request)
         sql = self.get_query_sql()
-        data,count = (await request.app.db.data_and_count(sql, *keyword))
+
+        db = request.app.db
+        if not db.pool:
+            await db.init_pool()
+        async with db.pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                try:
+                    await cur.execute(sql, keyword)
+                    ret1 = await cur.fetchall()
+                except pymysql.err.InternalError:
+                    await conn.ping()
+                    await cur.execute(sql, keyword)
+                    ret1 = await cur.fetchall()
+                try:
+                    await cur.execute("select found_rows() as count;")
+                    ret2 = await cur.fetchone()
+                except pymysql.err.InternalError:
+                    await conn.ping()
+                    await cur.execute("select found_rows() as count;")
+                    ret2 = await cur.fetchone()
+        data,count = ret1,ret2.get("count")
+        # data,count = (await request.app.db.data_and_count(sql, *keyword))
+
+        choice_field, foreignkey_field = self.table.get_choice_and_foreignkey()
+        for obj in data:
+            for choice,choice_obj in choice_field.items():
+                obj[choice] = choice_obj.choice_field.get(obj[choice])
+            for foreignkey,foreignkey_obj in foreignkey_field.items():
+                obj[foreignkey] = "{}\n（{}）".format(obj[foreignkey], obj[foreignkey_obj.key_name])
+                del obj[foreignkey_obj.key_name]
         data = json.dumps(data, cls = JsonExtendEncoder)
 
         int_count,float_count = divmod(count, self.page_size)
@@ -63,7 +91,7 @@ class ObjList(HTTPMethodView, DataPage):
 
 
 class ObjView(HTTPMethodView):
-    table = Table()
+    table = object
     async def get(self, request, obj_id):
         sql = querySql(self.table.table_name, query_field = self.table.query_field,where_field = [self.table.primary_key], where_func = "=", count = "", join_sql = self.table.join_sql)
         result = await request.app.db.get(sql, obj_id)
@@ -86,5 +114,3 @@ class ObjView(HTTPMethodView):
         return JsonResponse({"code": 1,
             "msg": "成功删除",
         })
-
-

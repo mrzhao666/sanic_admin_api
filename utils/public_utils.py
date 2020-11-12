@@ -32,7 +32,7 @@ def get_classes(arg):
     class_dic = dict()
     clsmembers = inspect.getmembers(arg, inspect.isclass)
     for (name, _) in clsmembers:
-        if name in ("ForeignKey", "FormatColumns"):
+        if name in ("ForeignKey", "FormatColumns", "CharField"):
             continue
         class_dic.setdefault(titleLower(name), _)
     return class_dic

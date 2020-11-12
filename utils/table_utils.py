@@ -2,16 +2,12 @@ class FormatColumns:
     table_name = ""
     @property
     def getList(self):
-        """
-        :return: 返回
-        """
         return_list = []
         for key, value in self.__dict__.items():
-            if isinstance(value, ForeignKey):
-                return_list.append({"name_e": value.key_name, "name_j": value.key_verbose, "is_edit":False})
-                return_list.append({"name_e": key, "name_j": value.verbose_name, "is_edit":True})
-            else:
-                return_list.append({"name_e": key, "name_j": value, "is_edit": True})
+            choice_field = None
+            if isinstance(value, CharField):
+                choice_field = value.choice_field
+            return_list.append({"name_e": key, "name_j": value.verbose_name, "is_edit": value.is_edit, "choice_field":choice_field})
         return return_list
 
     @property
@@ -41,9 +37,19 @@ class FormatColumns:
                 sql += " LEFT JOIN {} AS {} ON {}={} ".format(table, value.as_table_name, where_obe, where_two)
         return sql
 
+    def get_choice_and_foreignkey(self):
+        choice_field = {}
+        foreignkey_field = {}
+        for key, value in self.__dict__.items():
+            if isinstance(value, ForeignKey):
+                foreignkey_field[key] = value
+            elif isinstance(value, CharField):
+                if isinstance(value.choice_field, dict):
+                    choice_field[key] = value
+        return choice_field, foreignkey_field
 
 class ForeignKey:
-    def __init__(self, obj1, obj2, key_name, verbose_name, key_verbose, as_table_name = None):
+    def __init__(self, obj1, obj2, key_name, verbose_name, key_verbose, as_table_name = None, is_edit = True):
         """
 
         :param obj1: 主表对象
@@ -57,4 +63,11 @@ class ForeignKey:
         self.verbose_name = verbose_name
         self.key_verbose = key_verbose
         self.as_table_name = self.obj2.table_name if as_table_name is None else as_table_name
+        self.is_edit = is_edit
         self.value = "{}.{} AS {}".format(self.as_table_name, self.obj2.foreign_key_name, self.key_name)
+
+class CharField:
+    def __init__(self, is_edit = True, verbose_name = None, choice_field = None):
+        self.is_edit = is_edit
+        self.verbose_name = verbose_name
+        self.choice_field = choice_field
