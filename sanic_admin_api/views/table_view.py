@@ -1,7 +1,7 @@
 from sanic import Blueprint
 from sanic.response import json as JsonResponse
 from sanic.exceptions import NotFound
-from .utils.public_utils import get_classes
+from sanic_admin_api.utils.public_utils import get_classes
 import table_field
 
 table_bp = Blueprint('table', url_prefix = "/table")

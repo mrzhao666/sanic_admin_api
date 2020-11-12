@@ -3,10 +3,10 @@ import pymysql
 from sanic.response import json as JsonResponse
 from sanic.views import HTTPMethodView
 
-from .utils.get_sql import querySql,inset_sql
-from .utils.data_page import DataPage
-from .utils.public_utils import JsonExtendEncoder
-from .error_response import ParamsNotFound
+from sanic_admin_api.utils.get_sql import querySql,inset_sql
+from sanic_admin_api.utils.data_page import DataPage
+from sanic_admin_api.utils.public_utils import JsonExtendEncoder
+from sanic_admin_api.error_response import ParamsNotFound
 
 
 class ObjList(HTTPMethodView, DataPage):
